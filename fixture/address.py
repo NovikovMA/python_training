@@ -1,23 +1,14 @@
-from fixture.session import SessionHelper
-from selenium.webdriver.firefox.webdriver import WebDriver
 __author__ = 'M.Novikov'
 
 
-class Application:
+class AddressHelper:
 
-    def __init__(self):
-        self.wd = WebDriver()
-        self.wd.implicitly_wait(60)
-        self.session = SessionHelper(self)
-
-    # Открыть программу в окне браузера
-    def open_home_page(self):
-        wd = self.wd
-        wd.get("http://localhost/addressbook/")
+    def __init__(self, app):
+        self.app = app
 
     # Заполнение полей параметров контакта
-    def create_address(self, address):
-        wd = self.wd
+    def create(self, address):
+        wd = self.app.wd
         # Запуск добавления нового контакта
         wd.find_element_by_link_text("add new").click()
         # Заполнение параметров контакта
@@ -91,6 +82,3 @@ class Application:
         wd.find_element_by_name("notes").send_keys(address.notes)
         # Подтверждение введенных данных
         wd.find_element_by_xpath("//div[@id='content']/form/input[21]").click()
-
-    def destroy(self):
-        self.wd.quit()
