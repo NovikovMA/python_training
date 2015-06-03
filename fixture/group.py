@@ -11,48 +11,52 @@ class GroupHelper:
         wd = self.app.wd
         wd.find_element_by_link_text("groups").click()
 
+    def change_field_value(self, field_name, text):
+        wd = self.app.wd                                                    # Получить доступ к web-драйверу
+        if text is not None:                                                # Если изменяемое значение не пустое
+            wd.find_element_by_name(field_name).click()                     # Выбрать поле
+            wd.find_element_by_name(field_name).clear()                     # Очистить поле
+            wd.find_element_by_name(field_name).send_keys(text)             # Заполнить поле новым значение параметра
+
+    def fill_group_form(self, group):
+        wd = self.app.wd                                                    # Получить доступ к web-драйверу
+        self.change_field_value("group_name", group.name)
+        self.change_field_value("group_header", group.header)
+        self.change_field_value("group_footer", group.footer)
+
     def create(self, group):
         wd = self.app.wd
         self.open_groups_page()
         # init group creation
         wd.find_element_by_name("new").click()
-        # fill group form
-        wd.find_element_by_name("group_name").click()
-        wd.find_element_by_name("group_name").clear()
-        wd.find_element_by_name("group_name").send_keys(group.name)
-        wd.find_element_by_name("group_header").click()
-        wd.find_element_by_name("group_header").clear()
-        wd.find_element_by_name("group_header").send_keys(group.header)
-        wd.find_element_by_name("group_footer").click()
-        wd.find_element_by_name("group_footer").clear()
-        wd.find_element_by_name("group_footer").send_keys(group.footer)
+        self.fill_group_form(group)
         # submit group creation
         wd.find_element_by_name("submit").click()
         self.return_to_groups_page()
+
+    # Выбор первой в списке группы
+    def select_first_group(self):
+        wd = self.app.wd                                                    # Получить доступ к web-драйверу
+        wd.find_element_by_name("selected[]").click()                       # Выбор первой в списке группы
 
     def delete_first_group(self):
         wd = self.app.wd
         self.open_groups_page()
         # select first group
-        wd.find_element_by_name("selected[]").click()
+        self.select_first_group()                                           # Выбор первой в списке группы
         # submit deletion
         wd.find_element_by_name("delete").click()
         self.return_to_groups_page()
 
-    def edit_first_group(self, group):                                      # Изменение параметров первой группы
+    def modify_first_group(self, new_group_data):
         wd = self.app.wd                                                    # Получить доступ к web-драйверу
         self.open_groups_page()                                             # Переход на страницу списка групп
-        wd.find_element_by_name("selected[]").click()                       # Выбор первой в списке группы
+        self.select_first_group()                                           # Выбор первой в списке группы
+        # open modification form
         wd.find_element_by_name("edit").click()                             # Переход на страницу редактирования группы
-        wd.find_element_by_name("group_name").click()                       # Выбрать поле "Group name"
-        wd.find_element_by_name("group_name").clear()                       # Очистить поле
-        wd.find_element_by_name("group_name").send_keys(group.name)         # Заполнить поле новым значение параметра
-        wd.find_element_by_name("group_header").click()                     # Выбрать поле "Group header (Logo)"
-        wd.find_element_by_name("group_header").clear()                     # Очистить поле
-        wd.find_element_by_name("group_header").send_keys(group.header)     # Заполнить поле новым значение параметра
-        wd.find_element_by_name("group_footer").click()                     # Выбрать поле "Group footer (Comment)"
-        wd.find_element_by_name("group_footer").clear()                     # Очистить поле
-        wd.find_element_by_name("group_footer").send_keys(group.footer)     # Заполнить поле новым значение параметра
+        # fill group form
+        self.fill_group_form(new_group_data)
+        # submit modification
         wd.find_element_by_name("update").click()                           # Подтверждение введенных параметров
         self.return_to_groups_page()                                        # Переход на страницу списка групп
 

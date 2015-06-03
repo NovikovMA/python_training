@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 __author__ = 'M.Novikov'
 
 from fixture.address import AddressHelper
@@ -10,12 +11,19 @@ class Application:
 
     def __init__(self):
         self.wd = WebDriver()
-        self.wd.implicitly_wait(60)
+        self.wd.implicitly_wait(5)
         self.session = SessionHelper(self)
         self.address = AddressHelper(self)
         self.group = GroupHelper(self)
 
-    # Открыть программу в окне браузера
+    def is_valid(self):
+        try:
+            self.wd.current_url
+            return True
+        except:
+            return False
+
+    # РћС‚РєСЂС‹С‚СЊ РїСЂРѕРіСЂР°РјРјСѓ РІ РѕРєРЅРµ Р±СЂР°СѓР·РµСЂР°
     def open_home_page(self):
         wd = self.wd
         wd.get("http://localhost/addressbook/")

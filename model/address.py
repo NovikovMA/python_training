@@ -1,9 +1,10 @@
+# -*- coding: utf-8 -*-
 __author__ = 'M.Novikov'
 
 
 class Address:
 
-    def __init__(self, first_name, middle_name, last_name, nickname, title, company, address, tel_home, tel_mobile, tel_work, tel_fax, web_email, web_email2, web_email3, web_homepage, birthday_day, birthday_month, birthday_year, anniversary_day, anniversary_month, anniversary_year, sec_address, home, notes):
+    def __init__(self, first_name=None, middle_name=None, last_name=None, nickname=None, title=None, company=None, address=None, tel_home=None, tel_mobile=None, tel_work=None, tel_fax=None, web_email=None, web_email2=None, web_email3=None, web_homepage=None, birthday_day=None, birthday_month=None, birthday_year=None, anniversary_day=None, anniversary_month=None, anniversary_year=None, sec_address=None, home=None, notes=None):
         self.first_name = first_name
         self.middle_name = middle_name
         self.last_name = last_name
