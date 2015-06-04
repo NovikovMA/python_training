@@ -84,3 +84,8 @@ class AddressHelper:
         self.change_list_value("//div[@id='content']/form[1]/select[4]//option", new_address_data.anniversary_month, 2)
         # Подтверждение изменений
         wd.find_element_by_xpath("//div[@id='content']/form[1]/input[22]").click()
+
+    # Получение количества контактов в адресной книге
+    def count(self):
+        wd = self.app.wd                                                    # Получить доступ к web-драйверу
+        return len(wd.find_elements_by_name("selected[]"))                  # Колическво возможных к выбору элементов списка
