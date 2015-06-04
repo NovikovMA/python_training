@@ -7,6 +7,12 @@ class AddressHelper:
     def __init__(self, app):
         self.app = app
 
+    # Переход к списку контактов (главная страница)
+    def open_address_page(self):
+        wd = self.app.wd                                                    # Получить доступ к web-драйверу
+        if not (wd.current_url.endswith("/addressbook/") and len(wd.find_elements_by_name("searchstring")) > 0):    # При отсутсвии строки поиска
+            wd.find_element_by_link_text("home").click()                    # Переход к списку контактов (главная страница)
+
     # Проверка и изменение полей-списков формы ввода
     def change_list_value(self, field_name, num, norma):
         wd = self.app.wd                                                    # Получить доступ к web-драйверу
@@ -51,7 +57,8 @@ class AddressHelper:
 
     # Создание нового контакта
     def create(self, address):
-        wd = self.app.wd
+        wd = self.app.wd                                                    # Получить доступ к web-драйверу
+        self.open_address_page()                                            # Переход к списку контактов (главная страница)
         # Запуск добавления нового контакта
         wd.find_element_by_link_text("add new").click()
         # Заполнение параметров контакта
@@ -70,11 +77,13 @@ class AddressHelper:
 
     def delete_address(self):                                               # Удаление контакта
         wd = self.app.wd                                                    # Получить доступ к web-драйверу
+        self.open_address_page()                                            # Переход к списку контактов (главная страница)
         self.select_address()                                               # Выбор контакта из списка
         wd.find_element_by_xpath("//div[@id='content']/form[2]/input[2]").click()   # Подтверждение удаления
 
     def modify_address(self, new_address_data):                             # Изменение параметров контакта
         wd = self.app.wd                                                    # Получить доступ к web-драйверу
+        self.open_address_page()                                            # Переход к списку контактов (главная страница)
         self.select_address()                                               # Выбор контакта
         # Заполнение параметров контакта
         self.fill_address_form(new_address_data)
@@ -88,4 +97,5 @@ class AddressHelper:
     # Получение количества контактов в адресной книге
     def count(self):
         wd = self.app.wd                                                    # Получить доступ к web-драйверу
+        self.open_address_page()                                            # Переход к списку контактов (главная страница)
         return len(wd.find_elements_by_name("selected[]"))                  # Колическво возможных к выбору элементов списка
