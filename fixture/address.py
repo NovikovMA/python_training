@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 __author__ = 'M.Novikov'
 
+from model.address import Address
+
 
 class AddressHelper:
 
@@ -99,3 +101,15 @@ class AddressHelper:
         wd = self.app.wd                                                    # Получить доступ к web-драйверу
         self.open_address_page()                                            # Переход к списку контактов (главная страница)
         return len(wd.find_elements_by_name("selected[]"))                  # Колическво возможных к выбору элементов списка
+
+    # Получение списка контактов
+    def get_address_list(self):
+        wd = self.app.wd                                                    # Получить доступ к web-драйверу
+        self.open_address_page()                                            # Переход к списку контактов (главная страница)
+        addresses = []                                                      # Изначально список контактов пустой
+        for element in wd.find_elements_by_name("entry"):                   # Перебор всех элементов списка на странице
+            id = element.find_element_by_name("selected[]").get_attribute("id")  # Получение идентификатора контакта
+            last_name = element.find_elements_by_tag_name("td")[1].text     # Получение фамилии контакта
+            first_name = element.find_elements_by_tag_name("td")[2].text    # Получение имени контакта
+            addresses.append(Address(id=id, last_name=last_name, first_name=first_name))    # Добавление в список контактов
+        return addresses                                                    # Список контактов
