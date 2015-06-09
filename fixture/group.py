@@ -40,23 +40,33 @@ class GroupHelper:
 
     # Выбор первой в списке группы
     def select_first_group(self):
+        self.select_group_by_index(0)
+
+    # Выбор группы из списка по номеру
+    def select_group_by_index(self, index):
         wd = self.app.wd                                                    # Получить доступ к web-драйверу
-        wd.find_element_by_name("selected[]").click()                       # Выбор первой в списке группы
+        wd.find_elements_by_name("selected[]")[index].click()               # Выбор первой в списке группы
 
     def delete_first_group(self):
+        self.delete_group_by_index(0)
+
+    def delete_group_by_index(self, index):
         wd = self.app.wd
         self.open_groups_page()
         # select first group
-        self.select_first_group()                                           # Выбор первой в списке группы
+        self.select_group_by_index(index)                                   # Выбор группы
         # submit deletion
         wd.find_element_by_name("delete").click()
         self.return_to_groups_page()
         self.group_cache = None                                             # Сброс списка групп
 
     def modify_first_group(self, new_group_data):
+        self.modify_group_by_index(0, new_group_data)
+
+    def modify_group_by_index(self, index, new_group_data):
         wd = self.app.wd                                                    # Получить доступ к web-драйверу
         self.open_groups_page()                                             # Переход на страницу списка групп
-        self.select_first_group()                                           # Выбор первой в списке группы
+        self.select_group_by_index(index)                                   # Выбор группы
         # open modification form
         wd.find_element_by_name("edit").click()                             # Переход на страницу редактирования группы
         # fill group form

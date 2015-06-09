@@ -2,18 +2,20 @@
 __author__ = 'M.Novikov'
 
 from model.group import Group                                               # Модель группы адресной книги
+from random import randrange
 
 
 def test_modify_first_group_name(app):                                      # Тест возможности изменения группы
     if app.group.count() == 0:                                              # Проверка наличия хотябы одной группы в списке
         app.group.create(Group(name="test temp group", header="Logo temp group", footer="Comment temp group"))  # Создание группы на случай пустого списка групп
     old_groups = app.group.get_group_list()
+    index = randrange(len(old_groups))
     group = Group(name="New group")
-    group.id = old_groups[0].id
-    app.group.modify_first_group(group)                                     # Изменение параметров первой в списке группы
+    group.id = old_groups[index].id
+    app.group.modify_group_by_index(index, group)                            # Изменение параметров группы
     assert len(old_groups) == app.group.count()
     new_groups = app.group.get_group_list()
-    old_groups[0] = group
+    old_groups[index] = group
     assert sorted(old_groups, key=Group.id_or_max) == sorted(new_groups, key=Group.id_or_max)
 
 
