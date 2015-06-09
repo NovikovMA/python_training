@@ -11,8 +11,8 @@ def test_modify_address(app):                                               # Т
     address = Address(first_name="Александр", middle_name="Александрович", last_name="Падерин", nickname="A.Paderin", title="Title", company="КБ ДОРС", address="Федеративный пр. д.15 к.4", tel_home="001-18-65", tel_mobile="002-18-65", tel_work="003-18-65", tel_fax="004-18-65", web_email="", web_email2="A.Paderin@systema.biz", web_email3="A.Paderin@dors.com", web_homepage="http://software-testing.ru", birthday_day=4, birthday_month=11, birthday_year="1984", anniversary_day=1, anniversary_month=1, anniversary_year="2000", sec_address="Secondary Address", home="Home", notes="Notes")
     address.id = old_addresses[0].id                                        # Установка идентификатора изменяемого элемента
     app.address.modify_address(address)                                     # Изменение параметров контакта
+    assert len(old_addresses) == app.address.count()                        # Проверка соответсвия длин списков контактов до и после модификации элемента
     new_addresses = app.address.get_address_list()                          # Получение нового списка контактов
-    assert len(old_addresses) == len(new_addresses)                         # Проверка соответсвия длин списков контактов до и после модификации элемента
     old_addresses[0] = address                                              # Изменение контакта в старом списке
     assert sorted(old_addresses, key=Address.id_or_max) == sorted(new_addresses, key=Address.id_or_max) # Сравнение сортированных по идентификатору списков контактов
 

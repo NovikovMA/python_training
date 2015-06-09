@@ -71,6 +71,7 @@ class AddressHelper:
         self.change_list_value("//div[@id='content']/form/select[4]//option", address.anniversary_month, 1)
         # Подтверждение введенных данных
         wd.find_element_by_xpath("//div[@id='content']/form/input[21]").click()
+        self.address_cache = None                                           # Сброс списка контактов
 
     # Выбор контакта из списка
     def select_address(self):
@@ -82,6 +83,7 @@ class AddressHelper:
         self.open_address_page()                                            # Переход к списку контактов (главная страница)
         self.select_address()                                               # Выбор контакта из списка
         wd.find_element_by_xpath("//div[@id='content']/form[2]/input[2]").click()   # Подтверждение удаления
+        self.address_cache = None                                           # Сброс списка контактов
 
     def modify_address(self, new_address_data):                             # Изменение параметров контакта
         wd = self.app.wd                                                    # Получить доступ к web-драйверу
@@ -95,6 +97,7 @@ class AddressHelper:
         self.change_list_value("//div[@id='content']/form[1]/select[4]//option", new_address_data.anniversary_month, 2)
         # Подтверждение изменений
         wd.find_element_by_xpath("//div[@id='content']/form[1]/input[22]").click()
+        self.address_cache = None                                           # Сброс списка контактов
 
     # Получение количества контактов в адресной книге
     def count(self):
@@ -102,14 +105,17 @@ class AddressHelper:
         self.open_address_page()                                            # Переход к списку контактов (главная страница)
         return len(wd.find_elements_by_name("selected[]"))                  # Колическво возможных к выбору элементов списка
 
+    address_cache = None                                                    # Список контактов
+
     # Получение списка контактов
     def get_address_list(self):
-        wd = self.app.wd                                                    # Получить доступ к web-драйверу
-        self.open_address_page()                                            # Переход к списку контактов (главная страница)
-        addresses = []                                                      # Изначально список контактов пустой
-        for element in wd.find_elements_by_name("entry"):                   # Перебор всех элементов списка на странице
-            id = element.find_element_by_name("selected[]").get_attribute("id")  # Получение идентификатора контакта
-            last_name = element.find_elements_by_tag_name("td")[1].text     # Получение фамилии контакта
-            first_name = element.find_elements_by_tag_name("td")[2].text    # Получение имени контакта
-            addresses.append(Address(id=id, last_name=last_name, first_name=first_name))    # Добавление в список контактов
-        return addresses                                                    # Список контактов
+        if self.address_cache is None:                                      # При отсутствии списка групп
+            wd = self.app.wd                                                    # Получить доступ к web-драйверу
+            self.open_address_page()                                            # Переход к списку контактов (главная страница)
+            self.address_cache = []                                             # Изначально список контактов пустой
+            for element in wd.find_elements_by_name("entry"):                   # Перебор всех элементов списка на странице
+                id = element.find_element_by_name("selected[]").get_attribute("id")  # Получение идентификатора контакта
+                last_name = element.find_elements_by_tag_name("td")[1].text     # Получение фамилии контакта
+                first_name = element.find_elements_by_tag_name("td")[2].text    # Получение имени контакта
+                self.address_cache.append(Address(id=id, last_name=last_name, first_name=first_name))    # Добавление в список контактов
+        return list(self.address_cache)                                         # Список контактов
