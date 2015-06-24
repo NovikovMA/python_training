@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 __author__ = 'M.Novikov'
 
+import importlib
+import jsonpickle                                                           # Работа с файлами формата JSON
 import json                                                                 # Работа с файлами формата JSON
 import pytest
 import os.path                                                              # Работа с файлами и путями к ним
@@ -43,3 +45,25 @@ def stop(request):
 def pytest_addoption(parser):
     parser.addoption("--browser", action="store", default="firefox")
     parser.addoption("--target", action="store", default="target.json")
+
+
+# Генератор тестов
+def pytest_generate_tests(metafunc):
+    for fixture in metafunc.fixturenames:
+        if fixture.startswith("data_"):
+            testdata = load_from_module(fixture[5:])
+            metafunc.parametrize(fixture, testdata, ids=[str(x) for x in testdata])
+        elif fixture.startswith("json_"):
+            testdata = load_from_json(fixture[5:])
+            metafunc.parametrize(fixture, testdata, ids=[str(x) for x in testdata])
+
+
+# Загрузка данных из модуля Python-а (файла .py) с заданным имененм
+def load_from_module(module):
+    return importlib.import_module("data.%s" % module).testdata
+
+
+# Загрузка данных из файла с заданным имененм
+def load_from_json(file):
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/%s.json" % file)) as f:    # Определение пути к конфигурационному файлу и его открытие
+        return jsonpickle.decode(f.read())
