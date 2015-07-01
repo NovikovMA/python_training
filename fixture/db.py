@@ -23,10 +23,15 @@ class DbFixture():
         addresses = []                                                      # Список контактов пуст
         cursor = self.connection.cursor()                                   # Начать работу с элементами базы данных
         try:
-            cursor.execute("select id, firstname, lastname from addressbook where deprecated='0000-00-00 00:00:00'")    # Выполнение SQL-запроса в базе
+            cursor.execute("select id, firstname, lastname, address, home, mobile, work, phone2, email, email2, email3 from addressbook where deprecated='0000-00-00 00:00:00'")   # Выполнение SQL-запроса в базе
             for row in cursor:                                              # Перебор полученной из базы данных структуры по строкам
-                (id, firstname, lastname) = row                             # Разбиение строки на простые переменные
-                addresses.append(Address(id=id, first_name=firstname, last_name=lastname))  # Добавление контакта, полученного из базы данных, в список контактов
+                (id, first_name, last_name, address,
+                 home_phone, mobile_phone, work_phone, secondary_phone,
+                 web_email, web_email2, web_email3) = row                   # Разбиение строки на простые переменные
+                addresses.append(Address(id=id, first_name=first_name, last_name=last_name,
+                                         address=address,
+                                         tel_home=home_phone, tel_mobile=mobile_phone, tel_work=work_phone, home=secondary_phone,
+                                         web_email=web_email, web_email2=web_email2, web_email3=web_email3))    # Добавление контакта, полученного из базы данных, в список контактов
         finally:
             cursor.close()                                                  # Завершить работу с элементами базы данных
         return addresses                                                    # Список контактов
