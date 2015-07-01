@@ -78,20 +78,37 @@ class AddressHelper:
     def select_address(self):
         self.select_address_by_index(0)
 
-    # Открытие страницы редактирования контакта
+    # Открытие страницы редактирования контакта, выбранного по номеру
     def select_address_by_index(self, index):
         wd = self.app.wd                                                    # Получение доступа к web-драйверу
         wd.find_elements_by_css_selector('img[alt="Edit"]')[index].click()  # Выбор контакта из списка
+
+    # Открытие страницы редактирования контакта, выбранного по идентификатору
+    def select_address_by_id(self, id):
+        wd = self.app.wd                                                    # Получение доступа к web-драйверу
+        addresses = wd.find_elements_by_name("entry")                       # Полученние списка всех контактов
+        address = list(filter(lambda x: x.find_elements_by_tag_name("td")[0]
+                          .find_element_by_name("selected[]")
+                          .get_attribute("id") == str(id), addresses))[0]   # Выборка контакта с идентификатором
+        address.find_element_by_css_selector('img[alt="Edit"]').click()     # Выбор контакта из списка
 
     # Удаление первого контакта
     def delete_address(self):
         self.delete_address_by_index(0)                                     # Удаление контакта
 
-    # Удаление контакта
+    # Удаление контакта по номеру
     def delete_address_by_index(self, index):
         wd = self.app.wd                                                    # Получение доступа к web-драйверу
         self.open_address_page()                                            # Переход к списку контактов (главная страница)
-        self.select_address_by_index(index)                                 # Выбор контакта из списка
+        self.select_address_by_index(index)                                 # Выбор контакта
+        wd.find_element_by_xpath("//div[@id='content']/form[2]/input[2]").click()   # Подтверждение удаления
+        self.address_cache = None                                           # Сброс списка контактов
+
+    # Удаление контакта по идентификатору
+    def delete_address_by_id(self, id):
+        wd = self.app.wd                                                    # Получение доступа к web-драйверу
+        self.open_address_page()                                            # Переход к списку контактов (главная страница)
+        self.select_address_by_id(id)                                       # Выбор контакта
         wd.find_element_by_xpath("//div[@id='content']/form[2]/input[2]").click()   # Подтверждение удаления
         self.address_cache = None                                           # Сброс списка контактов
 
@@ -99,11 +116,26 @@ class AddressHelper:
     def modify_address(self, new_address_data):
         self.modify_address_by_index(0, new_address_data)
 
-    # Изменение параметров контакта
+    # Изменение параметров контакта по порядковому номеру
     def modify_address_by_index(self, index, new_address_data):
         wd = self.app.wd                                                    # Получение доступа к web-драйверу
         self.open_address_page()                                            # Переход к списку контактов (главная страница)
         self.select_address_by_index(index)                                 # Выбор контакта из списка
+        # Заполнение параметров контакта
+        self.fill_address_form(new_address_data)
+        self.change_list_value("//div[@id='content']/form[1]/select[1]//option", new_address_data.birthday_day, 2)
+        self.change_list_value("//div[@id='content']/form[1]/select[2]//option", new_address_data.birthday_month, 2)
+        self.change_list_value("//div[@id='content']/form[1]/select[3]//option", new_address_data.anniversary_day, 2)
+        self.change_list_value("//div[@id='content']/form[1]/select[4]//option", new_address_data.anniversary_month, 2)
+        # Подтверждение изменений
+        wd.find_element_by_xpath("//div[@id='content']/form[1]/input[22]").click()
+        self.address_cache = None                                           # Сброс списка контактов
+
+    # Изменение параметров контакта по идентификатору
+    def modify_address_by_id(self, new_address_data):
+        wd = self.app.wd                                                    # Получение доступа к web-драйверу
+        self.open_address_page()                                            # Переход к списку контактов (главная страница)
+        self.select_address_by_id(new_address_data.id)                      # Выбор контакта из списка
         # Заполнение параметров контакта
         self.fill_address_form(new_address_data)
         self.change_list_value("//div[@id='content']/form[1]/select[1]//option", new_address_data.birthday_day, 2)
