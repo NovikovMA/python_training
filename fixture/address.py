@@ -175,6 +175,10 @@ class AddressHelper:
                                                   all_email_from_home_page=all_email))  # Добавление в список контактов
         return list(self.address_cache)                                     # Список контактов
 
+    # Получение списка контактов со страниц редактирования
+    def get_address_list_from_edit_page(self):
+        return [self.get_address_info_from_edit_page(i) for i in range(0, self.count())]
+
     # Открытие страницы подробной информации о контакте
     def open_address_view_by_index(self, index):
         wd = self.app.wd                                                    # Получение доступа к web-драйверу
