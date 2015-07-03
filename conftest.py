@@ -8,6 +8,7 @@ import pytest
 import os.path                                                              # Работа с файлами и путями к ним
 from fixture.application import Application
 from fixture.db import DbFixture                                            # Настройки работы с базой данных
+from fixture.orm import ORMFixture                                          # Работа с базой данных через ORM-подсистему
 
 fixture = None
 target = None                                                               # Конфигурация запуска тестов
@@ -49,6 +50,17 @@ def db(request):
         dbfixture.destroy()                                                 # Уничтожение фикстуры работы с базой данных
     request.addfinalizer(fin)                                               # Действия при завершении работы с фикстурой
     return dbfixture
+
+
+# Фикстура для работы с ORM-подсистемой доступа к базе данных
+@pytest.fixture(scope="session")                                            # Метка использования pytest
+def orm(request):
+    orm_config = load_config(request.config.getoption("--target"))['db']    # Получение данных конфигурации выполнения из файла для работы с базой данных
+    ormfixture = ORMFixture(host=orm_config['host'], name=orm_config['name'], user=orm_config['user'], password=orm_config['password'])   # Создание фикстуры работы с базой данных
+    def fin():
+        ormfixture.destroy()                                                # Уничтожение фикстуры работы с базой данных
+    request.addfinalizer(fin)                                               # Действия при завершении работы с фикстурой
+    return ormfixture
 
 
 @pytest.fixture(scope="session", autouse=True)

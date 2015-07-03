@@ -220,3 +220,23 @@ class AddressHelper:
         secondary_phone = re.search("P: (.*)", address_text).group(1)       # Получение дополнительного телефона контакта
         return Address(tel_home=home_phone, tel_mobile=mobile_phone,
                        tel_work=work_phone, home=secondary_phone)           # Контакт
+
+    # Добавление контакта в группу по номеру
+    def add_to_group_by_index(self, address_list, group_index):
+        wd = self.app.wd                                                    # Получение доступа к web-драйверу
+        self.open_address_page()                                            # Переход к списку контактов (главная страница)
+        for address in address_list:                                        # Перебор контактов
+            wd.find_element_by_css_selector("input[value='%s']" % address.id).click()   # Выбор контакта
+        wd.find_element_by_name("to_group").find_elements_by_tag_name("option")[group_index].click()
+        wd.find_element_by_name("add").click()
+        self.open_address_page()                                            # Переход к списку контактов (главная страница)
+
+    # Удаление контакта из группы по номеру
+    def del_from_group_by_index(self, address_list, group_index):
+        wd = self.app.wd                                                    # Получение доступа к web-драйверу
+        self.open_address_page()                                            # Переход к списку контактов (главная страница)
+        wd.find_element_by_name("group").find_elements_by_tag_name("option")[group_index+2].click()
+        for address in address_list:                                        # Перебор контактов
+            wd.find_element_by_css_selector("input[value='%s']" % address.id).click()   # Выбор контакта
+        wd.find_element_by_name("remove").click()
+        self.open_address_page()                                            # Переход к списку контактов (главная страница)
