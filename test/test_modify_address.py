@@ -2,7 +2,7 @@
 __author__ = 'M.Novikov'
 
 from model.address import Address                                           # Модель контакта адресной книги
-from random import randrange
+from random import randrange                                                # Случайности
 
 
 def test_modify_some_address(app, db, check_ui):                            # Тест изменения контакта
