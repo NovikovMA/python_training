@@ -4,16 +4,19 @@ __author__ = 'M.Novikov'
 from model.address import Address                                           # Модель контакта адресной книги
 from pytest_bdd import given, when, then                                    # Определение служебны слов BDD (метки)
 from random import randrange                                                # Случайности
+import pytest                                                               # Исполнение тестов
 import random                                                               # Случайности
 
 
 # Получение списка контактов
+@pytest.allure.step('Given a address list')                                 # Метка присутсвия сообщения в отчете
 @given('a address list')                                                    # Метка определения фразы тестового сценария
 def address_list(db):
     return db.get_address_list()                                            # Получение списка контактов
 
 
 # Определение нового контакта
+@pytest.allure.step('Given a address with first_name={first_name}, middle_name={middle_name}, last_name={last_name} and address={address}')     # Метка присутсвия сообщения в отчете
 @given('a address with <first_name>, <middle_name>, <last_name> and <address>') # Метка определения фразы тестового сценария
 def new_address(first_name, middle_name, last_name, address):
     return Address(first_name=first_name, middle_name=middle_name, last_name=last_name, address=address)    # Новый контакт
@@ -22,21 +25,24 @@ def new_address(first_name, middle_name, last_name, address):
 # Добавление нового контакта
 @when('I add address to the list')                                          # Метка определения фразы тестового сценария
 def add_new_address(app, new_address):
-    app.address.create(new_address)                                         # Создание нового контакта
+    with pytest.allure.step('when I add address to the list'):
+        app.address.create(new_address)                                     # Создание нового контакта
 
 
 # Проверка успешного добавления контакта
 @then('the new address list is equal to the old list with the added address')   # Метка определения фразы тестового сценария
 def verify_address_added(app, db, check_ui, address_list, new_address):
-    old_addresses = address_list                                            # Получение списка контактов
-    new_addresses = db.get_address_list()                                   # Получение нового списка контактов
-    old_addresses.append(new_address)                                       # Добавление элемента в старый список
-    assert sorted(old_addresses, key=Address.id_or_max) == sorted(new_addresses, key=Address.id_or_max) # Сравнение сортированных по идентификатору списков контактов
-    if check_ui:                                                            # Проверка необходимости дополнительной проверки пользовательского интерфейса
-        assert sorted(new_addresses, key=Address.id_or_max) == sorted(app.address.get_group_list(), key=Address.id_or_max)
+    with pytest.allure.step('Then the new address list is equal to the old list with the added address'):
+        old_addresses = address_list                                        # Получение списка контактов
+        new_addresses = db.get_address_list()                               # Получение нового списка контактов
+        old_addresses.append(new_address)                                   # Добавление элемента в старый список
+        assert sorted(old_addresses, key=Address.id_or_max) == sorted(new_addresses, key=Address.id_or_max) # Сравнение сортированных по идентификатору списков контактов
+        if check_ui:                                                        # Проверка необходимости дополнительной проверки пользовательского интерфейса
+            assert sorted(new_addresses, key=Address.id_or_max) == sorted(app.address.get_group_list(), key=Address.id_or_max)
 
 
 # Получение непустого списка контактов
+@pytest.allure.step('Given a non-empty address list')                       # Метка присутсвия сообщения в отчете
 @given('a non-empty address list')                                          # Метка определения фразы тестового сценария
 def non_empty_address_list(app, db):
     if len(db.get_address_list()) == 0:                                     # Проверка наличия хотябы одного контакта в списке
@@ -45,6 +51,7 @@ def non_empty_address_list(app, db):
 
 
 # Выбор случайного контакта из списка
+@pytest.allure.step('Given a random address from the list')                 # Метка присутсвия сообщения в отчете
 @given('a random address from the list')                                    # Метка определения фразы тестового сценария
 def random_address(non_empty_address_list):
     return random.choice(non_empty_address_list)                            # Выбор случайного контакта
@@ -53,21 +60,25 @@ def random_address(non_empty_address_list):
 # Удаление контакта
 @when('I delete the address from the list')                                 # Метка определения фразы тестового сценария
 def delete_address(app, random_address):
-    app.address.delete_address_by_id(random_address.id)                     # Удаление контакта
+    with pytest.allure.step('When I delete the address %s from the list' % random_address):
+        app.address.delete_address_by_id(random_address.id)                 # Удаление контакта
 
 
 # Проверка успешного удаления контакта
 @then('the new address list is equal to the old list with the deleted address') # Метка определения фразы тестового сценария
 def verify_address_deleted(app, db, check_ui, non_empty_address_list, random_address):
-    old_addresses = non_empty_address_list                                  # Получение списка контактов
-    new_addresses = db.get_address_list()                                   # Получение нового списка контактов
-    old_addresses.remove(random_address)                                    # Удаление первого элемента списка
-    assert old_addresses == new_addresses                                   # Сравнение списков контактов
+    with pytest.allure.step('Then the new address list is equal to the old list with the deleted address'):
+        old_addresses = non_empty_address_list                              # Получение списка контактов
+        new_addresses = db.get_address_list()                               # Получение нового списка контактов
+        old_addresses.remove(random_address)                                # Удаление первого элемента списка
+        assert old_addresses == new_addresses                               # Сравнение списков контактов
     if check_ui:                                                            # Проверка необходимости дополнительной проверки пользовательского интерфейса
-        assert sorted(new_addresses, key=Address.id_or_max) == sorted(app.address.get_group_list(), key=Address.id_or_max)
+        with pytest.allure.step('Also check UI'):
+            assert sorted(new_addresses, key=Address.id_or_max) == sorted(app.address.get_group_list(), key=Address.id_or_max)
 
 
 # Выбор случайного контакта из списка для модификации
+@pytest.allure.step('Given a random address from the list for modify')      # Метка присутсвия сообщения в отчете
 @given('a random address from the list for modify')                         # Метка определения фразы тестового сценария
 def random_address_index(non_empty_address_list):
     return randrange(len(non_empty_address_list))                           # Получение случайного порядкового номера
@@ -76,16 +87,19 @@ def random_address_index(non_empty_address_list):
 # Изменение контакта
 @when('I modify the address from the list')                                 # Метка определения фразы тестового сценария
 def modify_address(app, non_empty_address_list, random_address_index, new_address):
-    new_address.id = non_empty_address_list[random_address_index].id        # Установка идентификатора изменяемого элемента
-    app.address.modify_address_by_id(new_address)                           # Изменение параметров контакта
+    with pytest.allure.step('When I modify the address from the list'):
+        new_address.id = non_empty_address_list[random_address_index].id    # Установка идентификатора изменяемого элемента
+        app.address.modify_address_by_id(new_address)                       # Изменение параметров контакта
 
 
 # Проверка успешного удаления контакта
 @then('the new address list is equal to the old list with the modified address')    # Метка определения фразы тестового сценария
 def verify_address_modified(app, db, check_ui, non_empty_address_list, random_address_index, new_address):
-    old_addresses = non_empty_address_list                                  # Получение списка контактов
-    new_addresses = db.get_address_list()                                   # Получение нового списка контактов
-    old_addresses[random_address_index] = new_address                       # Изменение контакта в старом списке
-    assert sorted(old_addresses, key=Address.id_or_max) == sorted(new_addresses, key=Address.id_or_max) # Сравнение сортированных по идентификатору списков контактов
+    with pytest.allure.step('Then the new address list is equal to the old list with the modified address'):
+        old_addresses = non_empty_address_list                              # Получение списка контактов
+        new_addresses = db.get_address_list()                               # Получение нового списка контактов
+        old_addresses[random_address_index] = new_address                   # Изменение контакта в старом списке
+        assert sorted(old_addresses, key=Address.id_or_max) == sorted(new_addresses, key=Address.id_or_max) # Сравнение сортированных по идентификатору списков контактов
     if check_ui:                                                            # Проверка необходимости дополнительной проверки пользовательского интерфейса
-        assert sorted(new_addresses, key=Address.id_or_max) == sorted(app.address.get_group_list(), key=Address.id_or_max)
+        with pytest.allure.step('Also check UI'):
+            assert sorted(new_addresses, key=Address.id_or_max) == sorted(app.address.get_group_list(), key=Address.id_or_max)
